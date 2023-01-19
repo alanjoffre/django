@@ -7,7 +7,9 @@ Desenvolvido em: HTML | CSS | JavaScript | Bootstrap5 | Python | Django | SQLAlc
 - Listar as bibliotecas instaladas
 - Crie o projeto, com o seguinte comando: django: django-admin startproject inventoryproject
 - Abra o projeto pelo VSCODE
-- Comando para iniciar o servidor: python manage.py runserver 
+- Comando para iniciar o servidor: python manage.py runserver
+- Por questão de segurança, para rodar sem erro o projeto, insira a SECRET_KEY, gerada ao criar o SEU servidor DJANGO.
+- Caminho SECRET_KEY = inventoryproject> inventoryproject> settings.py > campo SECRET_KEY = ''
 
 - Para erros de migração, digite: python manage.py makemigrations
 -                                 python manage.py migrate
@@ -15,7 +17,6 @@ Desenvolvido em: HTML | CSS | JavaScript | Bootstrap5 | Python | Django | SQLAlc
 
 - Comando para registrar novo app: python manage.py startapp dashboard
 - Adicione em: inventoryproject > inventoryproject > settings.py > INSTALLED_APPS > 'dashboard.apps.DashboardConfig',
-
 
 - Considerações:
 - Deixe o servidor rodando em um terminal e abra outro para desenvolvimento em Django.
