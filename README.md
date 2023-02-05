@@ -1,2 +1,2 @@
 # Django
-Repositório com aprendizado e exercícios: Django
+ - Repositório com: artigos, aprendizado, exercícios e projetos.
