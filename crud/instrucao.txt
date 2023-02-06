@@ -1,0 +1,346 @@
+# Django - CRUD
+
+- Pelo VSCODE crie a pasta do projeto
+- Digite o seguinte comando para criar o ambiente virtual: python -m venv venv
+- Acesse o diretório do ambiente virtual
+- Acesse o diretório Scripts dentro a pasta VENV
+- digite: activate
+- Digite para instalar o django: pip install django
+- Digite para criar o projeto django: django-admin startproject app .
+- Digite para rodar o projeto: python manage.py runserver
+- Digite para criar a estrutura do banco de dados SQlite: python manage.py migrate
+- Digite para criar o usuário admin: python manage.py createsuperuser
+- Digite para usuário: admin
+- Digite seu email
+- Digite a senha para admin
+- Digite para rodar o projeto: python manage.py runserver
+- Autentique com os dados cadastrados: http://127.0.0.1:8000/admin/login/?next=/admin/
+- Digite para criar app: python manage.py startapp core
+- Registre a nova aplicação em: app/settings.py
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'core'
+]
+
+- Altere o arquivo app/urls.py para:
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('core/', include('core.urls')),
+]
+
+- Crie dentro do diretório CORE o arquivo: core/urls.py
+- Copie o seguinte código para o arquivo core/urls.py:
+
+from django.contrib import admin
+from django.urls import path, include
+from .views import home
+
+urlpatterns = [
+    path('core/', include('core.urls')),
+]
+
+- Copie o seguinte código para o arquivo core/views.py:
+
+from django.shortcuts import render
+
+def home(request):
+    return render(request, "index.html")
+
+- Atualize o seguinte código para o arquivo core/urls.py:
+
+from django.contrib import admin
+from django.urls import path, include
+from .views import home
+
+urlpatterns = [
+    path('', home),
+]
+
+- Crie dentro da pasta CORE, uma pasta chamada templates
+- Dentro da pasta TEMPLATES, crie um arquivo: index.html
+- Copie o seguinte código para o arquivo core/templates/index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    Hello world!
+</body>
+</html>
+
+- Altere o arquivo CORE/Models para:
+
+from django.db import models
+
+class Pessoa(models.Model):
+    nome = models.CharField(max_length=100)
+
+- Altere o arquivo CORE/admin.py para:
+
+from django.contrib import admin
+from .models import Pessoa
+
+admin.site.register(Pessoa)
+
+- Digite o seguinte código para atualizar o banco de dados: python manage.py makemigrations
+
+- Digite o seguinte comando para atualizar o banco de dados: python manage.py migrate
+
+- Atualize as seguintes linhas no arquivo: CORE/models.py
+
+from django.db import models
+
+class Pessoa(models.Model):
+    nome = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nome
+
+- Atualize as seguintes linhas no arquivo: CORE/views.py
+
+from django.shortcuts import render
+from .models import Pessoa
+
+def home(request):
+    pessoas = Pessoa.objects.all()
+    return render(request, "index.html", {"pessoas": pessoas})
+
+- Atualize as seguintes linhas no arquivo: index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    Hello world!
+
+    <ul>
+        {% for pessoa in pessoas %}
+            <li> {{ pessoa.id }} {{ pessoa.nome }} <a href="{% url 'editar' pessoa.id %}"> Editar </a></li>       
+        {% endfor %}
+    </ul>
+
+    <form action="{% url 'salvar' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="nome">
+        <button type="submit"> Salvar </button>
+
+    </form>
+
+</body>
+</html>
+
+- Atualize as seguintes linhas no arquivo: CORE/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+from .views import home, salvar
+
+urlpatterns = [
+    path('', home),
+    path('salvar/', salvar, name='salvar'),
+
+- Atualize as seguintes linhas no arquivo: CORE/views
+
+from django.shortcuts import render
+from .models import Pessoa
+
+def home(request):
+    pessoas = Pessoa.objects.all()
+    return render(request, "index.html", {"pessoas": pessoas})
+
+def salvar(request):
+    vnome = request.POST.get('nome')
+    Pessoa.objects.create(nome=vnome)
+    pessoas = Pessoa.objects.all()
+    return render(request, "index.html", {"pessoas": pessoas})
+
+- Atualize as seguintes linhas no arquivo: CORE/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+from .views import home, salvar, editar
+
+urlpatterns = [
+    path('', home),
+    path('salvar/', salvar, name='salvar'),
+    path('editar/<int:id>', editar, name='editar'),
+
+- Atualize as seguintes linhas no arquivo: CORE/views.py
+
+from django.shortcuts import render, redirect
+from .models import Pessoa
+
+def home(request):
+    pessoas = Pessoa.objects.all()
+    return render(request, "index.html", {"pessoas": pessoas})
+
+def salvar(request):
+    vnome = request.POST.get('nome')
+    Pessoa.objects.create(nome=vnome)
+    pessoas = Pessoa.objects.all()
+    return render(request, "index.html", {"pessoas": pessoas})
+
+def editar(request, id):
+    pessoa = Pessoa.objects.get(id=id)
+    return render(request, "update.html", {"pessoa": pessoa})
+
+def update(request, id):
+    vnome = request.POST.get('nome')
+    pessoa = Pessoa.objects.get(id=id)
+    pessoa.nome = vnome
+    pessoa.save()
+    return redirect(home)
+
+- Crie um arquivo: update.html em CORE/templates/
+
+- Insira o seguinte código no arquivo: update.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    {{ pessoa.id }} - {{ pessoa.nome }}
+
+    <form action="{% url 'update' pessoa.id %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="nome" value="{{pessoa.nome}}">
+        <button type="submit"> Update </button>
+
+    </form>
+    
+</body>
+</html>
+
+- Atualize as seguintes linhas no arquivo: CORE/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+from .views import home, salvar, editar, update
+
+urlpatterns = [
+    path('', home),
+    path('salvar/', salvar, name='salvar'),
+    path('editar/<int:id>', editar, name='editar'),
+    path('update/<int:id>', update, name='update'),
+]
+
+- Atualize as seguintes linhas de código do arquivo: CORE/templates/index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <ul>
+        {% for pessoa in pessoas %}
+            <li> {{ pessoa.id }} - {{ pessoa.nome }} 
+            <a href="{% url 'editar' pessoa.id %}"> Editar </a>
+            <a href="{% url 'delete' pessoa.id %}"> Deletar </a>
+            </li>       
+        {% endfor %}
+    </ul>
+
+    <form action="{% url 'salvar' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="nome">
+        <button type="submit"> Salvar </button>
+
+    </form>
+
+</body>
+</html>
+
+- Atualize as seguintes linhas do arquivo: CORE/urls.py
+
+from django.contrib import admin
+from django.urls import path, include
+from .views import home, salvar, editar, update, delete
+
+urlpatterns = [
+    path('', home),
+    path('salvar/', salvar, name='salvar'),
+    path('editar/<int:id>', editar, name='editar'),
+    path('update/<int:id>', update, name='update'),
+    path('delete/<int:id>', delete, name='delete'),
+
+]
+
+- Atualize as seguintes linhas do arquivo: CORE/views.py
+
+from django.shortcuts import render, redirect
+from .models import Pessoa
+
+def home(request):
+    pessoas = Pessoa.objects.all()
+    return render(request, "index.html", {"pessoas": pessoas})
+
+def salvar(request):
+    vnome = request.POST.get('nome')
+    Pessoa.objects.create(nome=vnome)
+    pessoas = Pessoa.objects.all()
+    return render(request, "index.html", {"pessoas": pessoas})
+
+def editar(request, id):
+    pessoa = Pessoa.objects.get(id=id)
+    return render(request, "update.html", {"pessoa": pessoa})
+
+def update(request, id):
+    vnome = request.POST.get('nome')
+    pessoa = Pessoa.objects.get(id=id)
+    pessoa.nome = vnome
+    pessoa.save()
+    return redirect(home)
+
+def delete(request, id):
+    pessoa = Pessoa.objects.get(id=id)
+    pessoa.delete()
+    return redirect(home)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
