@@ -1,4 +1,4 @@
-# Django-CRUD-Operations
+# django-crud-operations
 
 - Complete Django CRUD Operations with PostgreSQL
 
