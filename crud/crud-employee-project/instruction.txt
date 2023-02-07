@@ -1,0 +1,125 @@
+# CRUD - Operation
+
+- Acesso o diretório onde será criado o projeto django
+- Digite o comando: django-admin.py startproject employee_project
+  ou caso dê erro:
+- Digite o comando: python -m django startproject employee_project
+- Digite o comando: cd employee_project
+- Digite o comando: python manage.py runserver
+- Digite o comando: python manage.py startapp employee_register
+
+- Adicione a linha ao arquivo: employee_project/settings.py
+
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'employee_register',
+]
+
+- Abra a console PGadmin/PostgreSQL e crie uma base de dados: EmployeeDB
+
+- Volte para o VSCODE e altere o arquivo: employee_project/settings.py
+
+- Digite o comando: python manage.py migrate
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'EmployeeDB',
+        'USER': 'postgres',
+        'PASSWORD' : 'root',
+        'HOST': 'localhost',
+    }
+}
+
+- Digite o comando: python manage.py migrate
+
+- Atualize o arquivo: employee_project/employee_register/models
+
+class Position(models.Model):
+    title = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.title
+
+class Employee(models.Model):
+    fullname = models.CharField(max_length=100)
+    emp_code = models.CharField(max_length=3)
+    mobile= models.CharField(max_length=15)
+    position= models.ForeignKey(Position,on_delete=models.CASCADE)
+
+- Digite o comando: python manage.py makemigrations employee_register
+- Digite o comando: python manage.py sqlmigrate employee_register 0001
+- Digite o comando: python manage.py migrate
+
+- Atualizar o arquivo: employee_project/employee_register/views.py
+
+from django.shortcuts import render, redirect
+from .forms import EmployeeForm
+from .models import Employee
+
+# Create your views here.
+
+def employee_list(request):
+    context = {'employee_list': Employee.objects.all()}
+    return render(request, "employee_register/employee_list.html", context)
+
+
+def employee_form(request, id=0):
+    if request.method == "GET":
+        if id == 0:
+            form = EmployeeForm()
+        else:
+            employee = Employee.objects.get(pk=id)
+            form = EmployeeForm(instance=employee)
+        return render(request, "employee_register/employee_form.html", {'form': form})
+    else:
+        if id == 0:
+            form = EmployeeForm(request.POST)
+        else:
+            employee = Employee.objects.get(pk=id)
+            form = EmployeeForm(request.POST,instance= employee)
+        if form.is_valid():
+            form.save()
+        return redirect('/employee/list')
+
+
+def employee_delete(request,id):
+    employee = Employee.objects.get(pk=id)
+    employee.delete()
+    return redirect('/employee/list')
+
+- Atualize o arquivo: employee_project/employee_project/urls.py
+
+from django.contrib import admin
+from django.urls import path,include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('employee/',include('employee_register.urls'))
+]
+
+- Digite o comando: pip install django-crispy-forms
+
+- Abra o programa PGadmin
+
+- Adicione os cargos na tabela: employee_register_position
+Jr. Developer
+Sr. Developer
+Accountant
+Sales Manager
+
+- Digite o comando: python manage.py startapp employee_register
+
+- Para acessar a aplicação: 127.0.0.1:8000/employee/
+
+- Para acessar a página de admin
+
+
+

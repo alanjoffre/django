@@ -6,7 +6,7 @@
 - Acesse o diretório Scripts dentro a pasta VENV
 - digite: activate
 - Digite para instalar o django: pip install django
-- Digite para criar o projeto django: django-admin startproject app .
+- Digite para criar o projeto: django-admin startproject app .
 - Digite para rodar o projeto: python manage.py runserver
 - Digite para criar a estrutura do banco de dados SQlite: python manage.py migrate
 - Digite para criar o usuário admin: python manage.py createsuperuser
